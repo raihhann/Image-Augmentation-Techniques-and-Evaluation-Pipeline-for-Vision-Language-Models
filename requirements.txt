@@ -2,4 +2,14 @@ fastapi
 uvicorn
 python-multipart
 jinja2
+opencv-python
+numpy
 pillow
+torch
+transformers
+ollama
+bert_score
+ultralytics
+supervision
+rembg
+timm
