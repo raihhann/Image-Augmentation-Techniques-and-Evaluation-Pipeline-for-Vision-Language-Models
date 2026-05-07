@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multimodal VLM Evaluator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="dark">
+
+<div class="center-container">
+
+    <h1>Multimodal Model Evaluation</h1>
+
+    <div id="loading" style="display: none;">
+        <h2>Processing...</h2>
+        <div id="status">Initializing...</div>
+        <div class="spinner"></div>
+    </div>
+
+    <form id="process-form" action="/process" method="post" enctype="multipart/form-data" class="card">
+
+        <label>Upload Media (Image / Video)</label>
+        <input type="file" name="file" required>
+
+        <label>Select Model</label>
+        <select name="model_name">
+            {% for model in models %}
+            <option value="{{ model }}">{{ model }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Select Augmentation</label>
+        <select name="augmentation_method">
+            {% for aug in augmentations %}
+            <option value="{{ aug }}">{{ aug }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Prompt</label>
+        <input type="text" name="prompt" required>
+
+        <label>Ground Truth</label>
+        <input type="text" name="ground_truth" required>
+
+        <button type="submit" class="primary-btn">
+            Run Comparison
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+document.getElementById('process-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    
+    form.style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    
+    try {
+        const response = await fetch('/process', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullHtml = '';
+        let isCollectingHtml = false;
+        
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); 
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6).trim();
+
+                    // 1. Check for errors
+                    if (data.startsWith('ERROR:')) {
+                        alert(data);
+                        location.reload();
+                        return;
+                    }
+
+                    // 2. Start collecting HTML once DONE is hit
+                    if (data === 'DONE') {
+                        isCollectingHtml = true;
+                        continue;
+                    }
+
+                    if (isCollectingHtml) {
+                        // Append every line after DONE to our HTML string
+                        fullHtml += data + '\n';
+                    } else {
+                        // Update the status text for messages before the end
+                        document.getElementById('status').textContent = data;
+                    }
+                }
+            }
+        }
+
+        // After the stream ends, if we have HTML, render it
+        if (fullHtml.trim().length > 0) {
+            document.open();
+            document.write(fullHtml);
+            document.close();
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        location.reload();
+    }
+});
+</script>
+
+</body>
+</html>

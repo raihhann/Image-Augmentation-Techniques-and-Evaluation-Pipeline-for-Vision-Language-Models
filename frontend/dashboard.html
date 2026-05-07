@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Evaluation Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="dark">
+
+<div class="dashboard">
+
+    <!-- LEFT PANEL -->
+    <div class="media-panel">
+        <h3>Media Preview</h3>
+
+        <!-- Toggle buttons -->
+        <div class="media-toggle">
+            <button id="show-original" class="toggle-btn active">Original</button>
+            <button id="show-augmented" class="toggle-btn">Augmented</button>
+        </div>
+
+        <!-- Media display -->
+        {% if media_type == "image" %}
+            <img id="media-view" src="{{ media_path }}" class="media-view">
+        {% elif media_type == "video" %}
+            <video id="media-view" controls class="media-view">
+                <source src="{{ media_path }}">
+            </video>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="output-panel">
+
+        <div class="output-box">
+            <h4>Original Output</h4>
+            <textarea readonly>{{ original_output }}</textarea>
+        </div>
+
+        <div class="output-box">
+            <h4>Augmented Output</h4>
+            <textarea readonly>{{ augmented_output }}</textarea>
+        </div>
+
+        <div class="metrics-box">
+            <h4>Evaluation Metrics</h4>
+
+            <div class="metric">
+                <span>Original Inference Time</span>
+                <span>{{ inference_time_original }} Seconds</span>
+            </div>
+
+            <div class="metric">
+                <span>Augmented Inference Time</span>
+                <span>{{ inference_time_augmented }} Seconds</span>
+            </div>
+
+            <div class="metric">
+                <span>Latency Difference</span>
+                <span>{{ latency_diff }} Seconds</span>
+            </div>
+
+            <div class="metric">
+                <span>Original BERTScore</span>
+                <span>{{ original_bert_score }}</span>
+            </div>
+
+            <div class="metric">
+                <span>Original BLEU Score</span>
+                <span>{{ original_bleu_score }}</span>
+            </div>
+
+            <div class="metric">
+                <span>Augmented BERTScore</span>
+                <span>{{ augmented_bert_score }}</span>
+            </div>
+
+            <div class="metric">
+                <span>Augmented BLEU Score</span>
+                <span>{{ augmented_bleu_score }}</span>
+            </div>
+
+            <div class="metric">
+                <span>Original Token Count</span>
+                <span>{{ token_count_original }}</span>
+            </div>
+
+            <div class="metric">
+                <span>Augmented Token Count</span>
+                <span>{{ token_count_augmented }}</span>
+            </div>
+        </div>
+    
+    <div style="margin-top:15px;">
+        <a 
+        href="/download_metrics?ground_truth={{ ground_truth|urlencode }}&original_output={{ original_output|urlencode }}&augmented_output={{ augmented_output|urlencode }}&original_bert_score={{ original_bert_score|urlencode }}&original_bleu_score={{ original_bleu_score|urlencode }}&augmented_bert_score={{ augmented_bert_score|urlencode }}&augmented_bleu_score={{ augmented_bleu_score|urlencode }}&token_count_original={{ token_count_original }}&token_count_augmented={{ token_count_augmented }}&latency_diff={{ latency_diff }}&inference_time_original={{ inference_time_original }}&inference_time_augmented={{ inference_time_augmented }}"
+        class="download-btn"
+        download
+        >
+            Download Metrics
+        </a>
+    </div>
+
+    </div>
+
+</div>
+
+<script>
+const originalBtn = document.getElementById("show-original");
+const augmentedBtn = document.getElementById("show-augmented");
+const mediaView = document.getElementById("media-view");
+
+const originalSrc = "{{ media_path }}";
+const augmentedSrc = "{{ augmented_media_path if augmented_media_path else media_path }}";
+
+originalBtn.onclick = () => {
+    originalBtn.classList.add("active");
+    augmentedBtn.classList.remove("active");
+
+    if(mediaView.tagName.toLowerCase() === "img") {
+        mediaView.src = originalSrc;
+    } else if(mediaView.tagName.toLowerCase() === "video") {
+        mediaView.src = originalSrc;
+        mediaView.load();
+    }
+};
+
+augmentedBtn.onclick = () => {
+    augmentedBtn.classList.add("active");
+    originalBtn.classList.remove("active");
+
+    if(mediaView.tagName.toLowerCase() === "img") {
+        mediaView.src = augmentedSrc;
+    } else if(mediaView.tagName.toLowerCase() === "video") {
+        mediaView.src = augmentedSrc;
+        mediaView.load();
+    }
+};
+</script>
+
+</body>
+</html>
