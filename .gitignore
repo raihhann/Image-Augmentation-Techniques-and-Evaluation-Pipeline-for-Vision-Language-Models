@@ -1,0 +1,8 @@
+# Ignore the shared models directory
+models/
+
+# Ignore all model weight files anywhere
+*.pt
+
+# Ignore uploaded media files but keep the directory
+static/uploads/*

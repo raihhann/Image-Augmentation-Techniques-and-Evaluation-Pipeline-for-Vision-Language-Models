@@ -1,12 +1,32 @@
 # yolo_world_annotate.py
+import os
 import cv2
 import numpy as np
 import supervision as sv
-from ultralytics import YOLOWorld
 from PIL import Image
 
-# Load YOLO-World model globally for efficiency
-yolo_world_model = YOLOWorld('yolov8s-world.pt') 
+# --- FIX: Resolve Absolute Path ---
+# Get the directory of the current script
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+# Navigate up to the shared 'models' folder
+model_folder = os.path.abspath(os.path.join(current_file_dir, "..", "..", "..", "models"))
+
+# Ensure the directory exists
+os.makedirs(model_folder, exist_ok=True)
+
+# Set environment variables for Ultralytics
+os.environ['YOLO_HOME'] = model_folder
+os.environ['ULTRALYTICS_CONFIG_DIR'] = model_folder
+
+from ultralytics import YOLOWorld
+
+# Define the absolute path to the YOLO-World weights
+model_path = os.path.join(model_folder, 'yolov8s-world.pt')
+
+print(f"🛠️ Loading YOLO-World from: {model_path}")
+
+# Load the model using the absolute path
+yolo_world_model = YOLOWorld(model_path)
 
 # Define the classes to detect
 CLASSES_TO_FIND = [

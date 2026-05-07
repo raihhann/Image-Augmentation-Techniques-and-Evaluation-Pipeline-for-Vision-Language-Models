@@ -1,10 +1,30 @@
+import os
 import cv2
 import numpy as np
 from PIL import Image
+
+# --- FIX: Resolve Absolute Path ---
+# Get the directory of the current script
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+# Navigate up to the shared 'models' folder
+model_folder = os.path.abspath(os.path.join(current_file_dir, "..", "..", "..", "models"))
+
+# Ensure the directory exists
+os.makedirs(model_folder, exist_ok=True)
+
+# Set environment variables for Ultralytics
+os.environ['YOLO_HOME'] = model_folder
+os.environ['ULTRALYTICS_CONFIG_DIR'] = model_folder
+
 from ultralytics import YOLO
 
-# Load YOLOv8 Segmentation model once globally
-seg_model = YOLO('yolov8n-seg.pt')
+# Define the absolute path to the segmentation weights
+model_path = os.path.join(model_folder, 'yolov8n-seg.pt')
+
+print(f"🛠️ Loading YOLOv8-Seg from: {model_path}")
+
+# Load the model using the absolute path
+seg_model = YOLO(model_path)
 
 def run_geometric_segmentation(image, save_output=False, output_path=None):
     """

@@ -1,11 +1,35 @@
+import os
 import cv2
 import numpy as np
 from PIL import Image
 import supervision as sv
+
+# --- FIX: Resolve Absolute Path ---
+# This gets the directory of the current file
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+# Moves up to the 'models' folder
+model_folder = os.path.abspath(os.path.join(current_file_dir, "..", "..", "..", "models"))
+
+# Ensure the directory actually exists so Ultralytics doesn't ignore the setting
+os.makedirs(model_folder, exist_ok=True)
+
+# Set the environment variables
+os.environ['YOLO_CONFIG_DIR'] = model_folder # Sometimes needed for settings
+os.environ['YOLO_HOME'] = model_folder       # Standard override for newer versions
+os.environ['ULTRALYTICS_CONFIG_DIR'] = model_folder
+
 from ultralytics import FastSAM
 
-# Load FastSAM once globally (avoid reloading every call)
-fastsam_model = FastSAM('FastSAM-x.pt')
+# Use the full path in the constructor to BE CERTAIN
+model_path = os.path.join(model_folder, 'FastSAM-x.pt')
+
+# Print to your console to verify during startup
+print(f"🛠️ Loading FastSAM from: {model_path}")
+
+if not os.path.exists(model_path):
+    print(f"⚠️ WARNING: Model not found at {model_path}! It will download to this location.")
+
+fastsam_model = FastSAM(model_path)
 
 def run_fastsam(image, save_output=False, output_path=None):
     """

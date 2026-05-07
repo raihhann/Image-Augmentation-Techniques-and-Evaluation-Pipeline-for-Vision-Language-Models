@@ -1,11 +1,31 @@
+import os
 import cv2
 import numpy as np
 from PIL import Image
+
+# --- FIX: Resolve Absolute Path ---
+# This gets the directory of the current file
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+# Moves up to the 'models' folder (adjust the number of ".." to match your structure)
+model_folder = os.path.abspath(os.path.join(current_file_dir, "..", "..", "..", "models"))
+
+# Ensure the directory actually exists
+os.makedirs(model_folder, exist_ok=True)
+
+# Set environment variables for Ultralytics
+os.environ['YOLO_HOME'] = model_folder
+os.environ['ULTRALYTICS_CONFIG_DIR'] = model_folder
+
 from ultralytics import RTDETR
 
-# Load RT-DETR model once globally
-# RT-DETR is the first real-time end-to-end object detector (Transformer-based)
-rtdetr_model = RTDETR('rtdetr-l.pt')
+# Define the absolute path to the weights file
+model_path = os.path.join(model_folder, 'rtdetr-l.pt')
+
+print(f"🛠️ Loading RT-DETR from: {model_path}")
+
+# Load RT-DETR model using the absolute path
+# This forces the library to look in your models folder instead of the root
+rtdetr_model = RTDETR(model_path)
 
 def run_rtdetr(image, save_output=False, output_path=None):
     """

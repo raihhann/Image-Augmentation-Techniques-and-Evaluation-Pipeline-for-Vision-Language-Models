@@ -1,7 +1,12 @@
 import cv2
 import torch
 import numpy as np
+import os
 from PIL import Image
+
+# Define cache directory for models
+cache_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "models")
+torch.hub.set_dir(cache_dir)
 
 # Load ZoeDepth once globally
 # Note: This requires 'timm' and 'torch' installed.

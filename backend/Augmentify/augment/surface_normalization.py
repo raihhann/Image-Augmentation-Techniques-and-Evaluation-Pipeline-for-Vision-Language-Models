@@ -1,10 +1,14 @@
 import cv2
 import numpy as np
+import os
 from PIL import Image
 from transformers import pipeline
 
+# Define cache directory for models
+cache_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "models")
+
 # Load Depth estimator once globally
-depth_estimator = pipeline(task="depth-estimation", model="Intel/dpt-large")
+depth_estimator = pipeline(task="depth-estimation", model="Intel/dpt-large", model_kwargs={"cache_dir": cache_dir})
 
 def run_surface_normals(image, save_output=False, output_path=None):
     """

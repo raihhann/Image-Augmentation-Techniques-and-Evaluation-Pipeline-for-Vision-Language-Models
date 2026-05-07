@@ -1,13 +1,17 @@
 import cv2
 import torch
 import numpy as np
+import os
 from PIL import Image
 from transformers import CLIPSegProcessor, CLIPSegForImageSegmentation
 
+# Define cache directory for models
+cache_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "models")
+
 # Load CLIPSeg once globally
 device = "cuda" if torch.cuda.is_available() else "cpu"
-processor = CLIPSegProcessor.from_pretrained("CIDAS/clipseg-rd64-refined")
-model = CLIPSegForImageSegmentation.from_pretrained("CIDAS/clipseg-rd64-refined").to(device)
+processor = CLIPSegProcessor.from_pretrained("CIDAS/clipseg-rd64-refined", cache_dir=cache_dir)
+model = CLIPSegForImageSegmentation.from_pretrained("CIDAS/clipseg-rd64-refined", cache_dir=cache_dir).to(device)
 
 def run_saliency_crop(image, user_prompt, save_output=False, output_path=None, padding=50):
     """

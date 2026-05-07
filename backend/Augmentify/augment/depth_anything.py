@@ -1,10 +1,14 @@
 import cv2
 import numpy as np
+import os
 from PIL import Image
 from transformers import pipeline
 
+# Define cache directory for models
+cache_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "models")
+
 # Load Depth pipeline once globally
-depth_pipe = pipeline(task="depth-estimation", model="depth-anything/Depth-Anything-V2-Small-hf")
+depth_pipe = pipeline(task="depth-estimation", model="depth-anything/Depth-Anything-V2-Small-hf", model_kwargs={"cache_dir": cache_dir})
 
 def run_depth_anything(image, save_output=False, output_path=None):
     """

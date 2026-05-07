@@ -1,14 +1,18 @@
 import cv2
 import torch
 import numpy as np
+import os
 from PIL import Image
 from transformers import CLIPSegProcessor, CLIPSegForImageSegmentation
 import ollama
 
+# Define cache directory for models
+cache_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "models")
+
 # Initialize CLIPSeg globally
 device = "cuda" if torch.cuda.is_available() else "cpu"
-processor = CLIPSegProcessor.from_pretrained("CIDAS/clipseg-rd64-refined")
-model = CLIPSegForImageSegmentation.from_pretrained("CIDAS/clipseg-rd64-refined").to(device)
+processor = CLIPSegProcessor.from_pretrained("CIDAS/clipseg-rd64-refined", cache_dir=cache_dir)
+model = CLIPSegForImageSegmentation.from_pretrained("CIDAS/clipseg-rd64-refined", cache_dir=cache_dir).to(device)
 
 def _get_visual_query(user_prompt):
     """Internal helper to convert prompt to visual object via LLM."""
